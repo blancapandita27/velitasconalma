@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velas Aromáticas - Contacta para tu Pedido</title>
+    <title>Velitas con Alma - Velas Aromáticas Artesanales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -64,17 +64,13 @@
             gap: 15px;
         }
         
-        .contact-header a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
         .cart-icon {
             position: relative;
             cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .cart-count {
@@ -366,6 +362,11 @@
             text-decoration: none;
             color: var(--dark);
             transition: background-color 0.3s;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
         }
         
         .contact-option:hover {
@@ -390,7 +391,20 @@
             color: white;
         }
         
-        .contact-modal {
+        .email-option {
+            background: #ea4335;
+            color: white;
+        }
+        
+        .email-option:hover {
+            background: #d33426;
+        }
+        
+        .email-option i {
+            color: white;
+        }
+        
+        .order-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -403,30 +417,61 @@
             align-items: center;
         }
         
-        .contact-content {
+        .order-content {
             background: white;
             width: 90%;
             max-width: 500px;
             border-radius: 8px;
             padding: 2rem;
-            text-align: center;
         }
         
-        .contact-info {
-            margin: 1.5rem 0;
-        }
-        
-        .contact-detail {
+        .order-form {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 1rem 0;
-            font-size: 1.1rem;
+            flex-direction: column;
         }
         
-        .contact-detail i {
-            color: var(--primary);
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background-color: #eee;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
         }
         
         .confirmation-modal {
@@ -510,14 +555,16 @@
             }
             
             .contact-header {
-                flex-direction: column;
-                gap: 5px;
-                align-items: flex-end;
+                gap: 10px;
             }
             
             .footer-contact {
                 flex-direction: column;
                 gap: 1rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -527,19 +574,12 @@
         <nav>
             <div class="logo">
                 <i class="fas fa-candle-holder"></i>
-                <span>Velas Aromáticas</span>
+                <span>Velitas con Alma</span>
             </div>
             <div class="contact-header">
-                <a href="tel:+34123456789">
-                    <i class="fas fa-phone"></i>
-                    <span>Llamar</span>
-                </a>
-                <a href="https://wa.me/34633544013" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp</span>
-                </a>
                 <div class="cart-icon" id="cartIcon">
                     <i class="fas fa-shopping-cart"></i>
+                    <span>Mi Pedido</span>
                     <span class="cart-count" id="cartCount">0</span>
                 </div>
             </div>
@@ -547,15 +587,15 @@
     </header>
 
     <section class="hero">
-        <h1>Velas Aromáticas Artesanales</h1>
-        <p>Descubre nuestra colección exclusiva de velas con aromas naturales que transformarán tu espacio</p>
-        <a href="#products" class="cta-button">Ver Catálogo</a>
+        <h1>Velitas con Alma</h1>
+        <p>Velas aromáticas artesanales con esencias naturales para iluminar tus momentos especiales</p>
+        <a href="#products" class="cta-button">Ver Nuestras Velas</a>
     </section>
 
     <div class="container" id="products">
-        <h2 class="section-title">Nuestras Velas</h2>
+        <h2 class="section-title">Nuestras Velas Artesanales</h2>
         <div class="products-grid" id="productsGrid">
-            <!-- Los productos se cargarán dinámicamente con JavaScript -->
+            <!-- Los productos se cargarán con JavaScript -->
         </div>
     </div>
 
@@ -563,7 +603,7 @@
     <div class="cart-modal" id="cartModal">
         <div class="cart-content">
             <div class="cart-header">
-                <h2>Tu Selección</h2>
+                <h2>Tu Selección de Velas</h2>
                 <button class="close-cart" id="closeCart">&times;</button>
             </div>
             <div class="cart-items" id="cartItems">
@@ -572,145 +612,112 @@
             <div class="cart-total">
                 Total: €<span id="cartTotal">0.00</span>
             </div>
-            <p>Para finalizar tu pedido, contáctanos directamente:</p>
+            <p>Para finalizar tu pedido:</p>
             <div class="contact-options">
-                <a href="https://wa.me/34633544013?text=Hola!%20Me%20interesa%20hacer%20un%20pedido%20de%20velas" class="contact-option whatsapp" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>Contactar por WhatsApp</span>
-                </a>
-                <a href="tel:+34123456789" class="contact-option">
-                    <i class="fas fa-phone"></i>
-                    <span>Llamar por teléfono</span>
-                </a>
-                <button class="contact-option" id="viewContactInfo">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Ver información de contacto</span>
+                <button class="contact-option email-option" id="finalizeOrderBtn">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Finalizar Pedido y Generar PDF</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Información de Contacto -->
-    <div class="contact-modal" id="contactModal">
-        <div class="contact-content">
-            <h2>Contacta Con Nosotros</h2>
-            <div class="contact-info">
-                <div class="contact-detail">
-                    <i class="fas fa-phone"></i>
-                    <span>+34 123 456 789</span>
+    <!-- Modal de Formulario de Pedido -->
+    <div class="order-modal" id="orderModal">
+        <div class="order-content">
+            <h2>Completar tu Pedido</h2>
+            <form class="order-form" id="orderForm">
+                <div class="form-group">
+                    <label for="customerName">Nombre completo *</label>
+                    <input type="text" id="customerName" name="customerName" required>
                 </div>
-                <div class="contact-detail">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>+34 123 456 789</span>
+                <div class="form-group">
+                    <label for="customerEmail">Email *</label>
+                    <input type="email" id="customerEmail" name="customerEmail" required>
                 </div>
-                <div class="contact-detail">
-                    <i class="fas fa-envelope"></i>
-                    <span>info@velitasconalma.com</span>
+                <div class="form-group">
+                    <label for="customerAddress">Dirección de envío *</label>
+                    <textarea id="customerAddress" name="customerAddress" rows="3" required></textarea>
                 </div>
-                <div class="contact-detail">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Calle de las Velas, 123, Madrid</span>
+                <div class="form-group">
+                    <label for="orderNotes">Notas adicionales (opcional)</label>
+                    <textarea id="orderNotes" name="orderNotes" rows="3" placeholder="Alguna preferencia especial..."></textarea>
                 </div>
-            </div>
-            <p>Te atenderemos personalmente para coordinar tu pedido y método de pago.</p>
-            <button class="cta-button" id="closeContact">Cerrar</button>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelOrder">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar Pedido</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Modal de Confirmación -->
     <div class="confirmation-modal" id="confirmationModal">
-        <div class="confirmation-content">
-            <div class="confirmation-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h2>¡Selección Guardada!</h2>
-            <p>Tu selección de velas ha sido guardada. Contacta con nosotros para finalizar el pedido.</p>
-            <div class="order-summary" id="orderSummary">
-                <!-- Resumen del pedido -->
-            </div>
-            <p>Puedes contactarnos por:</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin: 1rem 0;">
-                <a href="https://wa.me/34633544013" class="cta-button whatsapp" target="_blank" style="background-color: #25D366;">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </a>
-                <a href="tel:+34123456789" class="cta-button">
-                    <i class="fas fa-phone"></i> Llamar
-                </a>
-            </div>
-            <button class="cta-button" id="closeConfirmation" style="background-color: var(--primary);">Seguir Comprando</button>
-        </div>
+        <!-- Se llenará dinámicamente -->
     </div>
 
     <footer>
         <div class="footer-content">
-            <h3>Velas Aromáticas</h3>
+            <h3>Velitas con Alma</h3>
             <p>Velas artesanales con esencias naturales para tu hogar</p>
             <div class="footer-contact">
-                <a href="tel:+34123456789">
-                    <i class="fas fa-phone"></i>
-                    <span>+34 123 456 789</span>
-                </a>
-                <a href="mailto:info@velitasconalma.com">
+                <a href="mailto:blancapandita27@gmail.com">
                     <i class="fas fa-envelope"></i>
-                    <span>info@velasaromaticas.com</span>
-                </a>
-                <a href="https://wa.me/34633544013" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp</span>
+                    <span>blancapandita27@gmail.com</span>
                 </a>
             </div>
-            <p>&copy; 2023 Velas Aromáticas. Todos los derechos reservados.</p>
+            <p>&copy; 2024 Velitas con Alma. Todos los derechos reservados.</p>
         </div>
     </footer>
 
     <script>
-        // Base de datos de productos
-        const products = [
+        // Base de datos de productos - PERSONALIZA ESTO CON TUS VELAS
+        let products = JSON.parse(localStorage.getItem('velitasConAlmaStock')) || [
             {
                 id: 1,
-                name: "Cascanueces Lavanda",
-                price: 12.99,
-                stock: 10,
-                image: "https://i.postimg.cc/nhKL1srT/Whats-App-Image-2025-11-10-at-20-59-28.jpg",
-                description: "Relajante aroma a lavanda para crear un ambiente tranquilo"
+                name: "Vela de Lavanda Relajante",
+                price: 14.99,
+                stock: 15,
+                image: "https://images.unsplash.com/photo-1595425970375-3e59f11a8e95?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                description: "Aroma calmante de lavanda para momentos de tranquilidad"
             },
             {
                 id: 2,
-                name: "Vela de Vainilla",
-                price: 14.99,
-                stock: 8,
-                image: "https://i.postimg.cc/nhKL1srT/Whats-App-Image-2025-11-10-at-20-59-28.jpg",
-                description: "Dulce y cálido aroma a vainilla que evoca confort"
+                name: "Vela de Vainilla Dulce",
+                price: 16.99,
+                stock: 12,
+                image: "https://images.unsplash.com/photo-1573821663912-569905455b1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                description: "Dulce y acogedor aroma a vainilla que envuelve tu hogar"
             },
             {
                 id: 3,
-                name: "Vela Cítrica",
-                price: 11.99,
-                stock: 15,
+                name: "Vela Cítrica Energizante",
+                price: 13.99,
+                stock: 18,
                 image: "https://images.unsplash.com/photo-1595425970375-3e59f11a8e95?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "Energizante mezcla de limón, naranja y pomelo"
+                description: "Mezcla revitalizante de limón, naranja y pomelo"
             },
             {
                 id: 4,
-                name: "Vela de Sándalo",
-                price: 16.99,
-                stock: 5,
+                name: "Vela de Sándalo Mystic",
+                price: 18.99,
+                stock: 8,
                 image: "https://images.unsplash.com/photo-1573821663912-569905455b1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                description: "Aroma terroso y amaderado para meditación"
+                description: "Aroma terroso y amaderado para meditación y relax"
             },
             {
                 id: 5,
-                name: "Vela de Jazmín",
-                price: 13.99,
-                stock: 12,
+                name: "Vela de Jazmín Romance",
+                price: 15.99,
+                stock: 10,
                 image: "https://images.unsplash.com/photo-1595425970375-3e59f11a8e95?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
                 description: "Floral y exótico, perfecto para crear un ambiente romántico"
             },
             {
                 id: 6,
-                name: "Vela de Canela",
-                price: 15.99,
-                stock: 7,
+                name: "Vela de Canela Navideña",
+                price: 17.99,
+                stock: 6,
                 image: "https://images.unsplash.com/photo-1573821663912-569905455b1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
                 description: "Aroma especiado que evoca calidez y festividad"
             }
@@ -727,12 +734,11 @@
         const closeCart = document.getElementById('closeCart');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
-        const viewContactInfo = document.getElementById('viewContactInfo');
-        const contactModal = document.getElementById('contactModal');
-        const closeContact = document.getElementById('closeContact');
+        const finalizeOrderBtn = document.getElementById('finalizeOrderBtn');
+        const orderModal = document.getElementById('orderModal');
+        const orderForm = document.getElementById('orderForm');
+        const cancelOrder = document.getElementById('cancelOrder');
         const confirmationModal = document.getElementById('confirmationModal');
-        const closeConfirmation = document.getElementById('closeConfirmation');
-        const orderSummary = document.getElementById('orderSummary');
 
         // Cargar productos en la página
         function loadProducts() {
@@ -760,7 +766,7 @@
                                 'Agotado'}
                         </div>
                         <button class="add-to-cart" data-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>
-                            ${product.stock === 0 ? 'Agotado' : 'Añadir a mi selección'}
+                            ${product.stock === 0 ? 'Agotado' : 'Añadir a mi pedido'}
                         </button>
                     </div>
                 `;
@@ -801,9 +807,6 @@
                 
                 updateCart();
                 updateProductStock(productId, -1);
-                
-                // Mostrar confirmación
-                showConfirmation();
             }
         }
 
@@ -818,7 +821,7 @@
             let total = 0;
             
             if (cart.length === 0) {
-                cartItems.innerHTML = '<p>Tu selección está vacía</p>';
+                cartItems.innerHTML = '<p>Tu pedido está vacío</p>';
             } else {
                 cart.forEach(item => {
                     const itemTotal = item.price * item.quantity;
@@ -904,6 +907,9 @@
             if (product) {
                 product.stock += change;
                 
+                // Guardar en localStorage
+                localStorage.setItem('velitasConAlmaStock', JSON.stringify(products));
+                
                 // Actualizar botón en la lista de productos
                 const productButton = document.querySelector(`.add-to-cart[data-id="${productId}"]`);
                 const stockDisplay = document.querySelector(`.add-to-cart[data-id="${productId}"]`).closest('.product-card').querySelector('.product-stock');
@@ -922,7 +928,7 @@
                         productButton.textContent = 'Agotado';
                     } else {
                         productButton.disabled = false;
-                        productButton.textContent = 'Añadir a mi selección';
+                        productButton.textContent = 'Añadir a mi pedido';
                     }
                     
                     stockDisplay.textContent = stockText;
@@ -931,38 +937,112 @@
             }
         }
 
-        // Mostrar confirmación de selección
-        function showConfirmation() {
-            // Actualizar resumen del pedido
-            orderSummary.innerHTML = '';
-            let total = 0;
+        // Generar PDF del pedido
+        function generateOrderPDF(orderData) {
+            const { customerName, customerEmail, customerAddress, orderNotes, orderDetails, total } = orderData;
             
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
+            // Crear contenido del PDF
+            const pdfContent = `
+                PEDIDO - VELITAS CON ALMA
+                ================================
                 
-                const orderItem = document.createElement('div');
-                orderItem.className = 'order-item';
-                orderItem.innerHTML = `
-                    <span>${item.name} x ${item.quantity}</span>
-                    <span>€${itemTotal.toFixed(2)}</span>
-                `;
-                orderSummary.appendChild(orderItem);
-            });
-            
-            const totalElement = document.createElement('div');
-            totalElement.className = 'order-item';
-            totalElement.style.fontWeight = 'bold';
-            totalElement.style.borderTop = '1px solid #ddd';
-            totalElement.style.paddingTop = '0.5rem';
-            totalElement.style.marginTop = '0.5rem';
-            totalElement.innerHTML = `
-                <span>Total:</span>
-                <span>€${total.toFixed(2)}</span>
+                DATOS DEL CLIENTE:
+                Nombre: ${customerName}
+                Email: ${customerEmail}
+                Dirección: ${customerAddress}
+                ${orderNotes ? `Notas: ${orderNotes}` : ''}
+                
+                DETALLES DEL PEDIDO:
+                ${orderDetails}
+                
+                TOTAL: €${total}
+                
+                ================================
+                Fecha: ${new Date().toLocaleDateString()}
+                Hora: ${new Date().toLocaleTimeString()}
+                
+                ¡Gracias por tu pedido!
+                Velitas con Alma
             `;
-            orderSummary.appendChild(totalElement);
             
-            confirmationModal.style.display = 'flex';
+            // Crear blob para descargar
+            const blob = new Blob([pdfContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pedido-velitas-con-alma-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            return pdfContent;
+        }
+
+        // Enviar pedido por email (simulado)
+        function sendOrderEmail(orderData, pdfContent) {
+            // En un caso real, aquí conectarías con un servicio de email
+            // Por ahora, simulamos el envío
+            
+            const emailBody = `
+Nuevo pedido de Velitas con Alma:
+
+${pdfContent}
+
+---
+Este pedido fue generado automáticamente desde la tienda online.
+            `;
+            
+            // Simular envío (en realidad solo muestra en consola)
+            console.log('Email enviado a: blancapandita27@gmail.com');
+            console.log('Contenido:', emailBody);
+            
+            // En una implementación real, usarías:
+            // - Formspree
+            // - EmailJS
+            // - Un webhook
+            return true;
+        }
+
+        // Mostrar confirmación
+        function showOrderConfirmation(orderData, pdfContent) {
+            const confirmationContent = `
+                <div class="confirmation-content">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>¡Pedido Confirmado!</h2>
+                    <p>Tu pedido ha sido procesado correctamente.</p>
+                    
+                    <div class="order-summary">
+                        <h3>Resumen de tu Pedido:</h3>
+                        <pre style="text-align: left; white-space: pre-wrap; font-family: inherit;">${pdfContent}</pre>
+                    </div>
+                    
+                    <p><strong>Te hemos enviado un email de confirmación.</strong></p>
+                    <p>Nos pondremos en contacto contigo pronto para coordinar el envío.</p>
+                    
+                    <button class="cta-button" onclick="printOrder()" style="margin: 10px;">
+                        <i class="fas fa-print"></i> Imprimir Pedido
+                    </button>
+                    <button class="cta-button" id="closeConfirmation">
+                        Cerrar
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('confirmationModal').innerHTML = confirmationContent;
+            document.getElementById('confirmationModal').style.display = 'flex';
+            
+            // Event listener para cerrar
+            document.getElementById('closeConfirmation').addEventListener('click', function() {
+                document.getElementById('confirmationModal').style.display = 'none';
+            });
+        }
+
+        // Función para imprimir
+        function printOrder() {
+            window.print();
         }
 
         // Event Listeners
@@ -974,16 +1054,75 @@
             cartModal.style.display = 'none';
         });
 
-        viewContactInfo.addEventListener('click', () => {
-            contactModal.style.display = 'flex';
+        finalizeOrderBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Tu pedido está vacío');
+                return;
+            }
+            cartModal.style.display = 'none';
+            orderModal.style.display = 'flex';
         });
 
-        closeContact.addEventListener('click', () => {
-            contactModal.style.display = 'none';
+        cancelOrder.addEventListener('click', () => {
+            orderModal.style.display = 'none';
+            cartModal.style.display = 'flex';
         });
 
-        closeConfirmation.addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Recopilar datos del formulario
+            const formData = new FormData(orderForm);
+            const orderData = {
+                customerName: formData.get('customerName'),
+                customerEmail: formData.get('customerEmail'),
+                customerAddress: formData.get('customerAddress'),
+                orderNotes: formData.get('orderNotes')
+            };
+            
+            // Generar detalles del pedido
+            let orderDetails = "";
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                orderDetails += `${item.name} - ${item.quantity} x €${item.price} = €${itemTotal.toFixed(2)}\n`;
+            });
+            
+            orderDetails += `\nTOTAL: €${total.toFixed(2)}`;
+            orderData.orderDetails = orderDetails;
+            orderData.total = total.toFixed(2);
+            
+            // Mostrar indicador de carga
+            const submitButton = orderForm.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Procesando...';
+            submitButton.disabled = true;
+            
+            // Generar PDF
+            const pdfContent = generateOrderPDF(orderData);
+            
+            // Enviar email (simulado)
+            const emailSent = sendOrderEmail(orderData, pdfContent);
+            
+            if (emailSent) {
+                orderModal.style.display = 'none';
+                showOrderConfirmation(orderData, pdfContent);
+                
+                // Limpiar carrito
+                cart = [];
+                updateCart();
+                
+                // Resetear formulario
+                orderForm.reset();
+            } else {
+                alert('Hubo un error al procesar tu pedido. Por favor, inténtalo de nuevo.');
+            }
+            
+            // Restaurar botón
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
         });
 
         // Cerrar modales al hacer clic fuera
@@ -991,8 +1130,8 @@
             if (e.target === cartModal) {
                 cartModal.style.display = 'none';
             }
-            if (e.target === contactModal) {
-                contactModal.style.display = 'none';
+            if (e.target === orderModal) {
+                orderModal.style.display = 'none';
             }
             if (e.target === confirmationModal) {
                 confirmationModal.style.display = 'none';
