@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Velitas con Alma - Velas Aromáticas Artesanales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root {
             --primary: #8B4513;
@@ -516,6 +518,58 @@
             margin-bottom: 0.5rem;
         }
         
+        .admin-panel {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin: 2rem auto;
+            border-radius: 8px;
+            max-width: 1200px;
+        }
+        
+        .admin-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .stock-control {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stock-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .stock-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stock-btn {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .stock-add {
+            background: var(--success);
+            color: white;
+        }
+        
+        .stock-remove {
+            background: #dc3545;
+            color: white;
+        }
+        
         footer {
             background-color: var(--dark);
             color: white;
@@ -566,6 +620,10 @@
             .form-actions {
                 flex-direction: column;
             }
+            
+            .stock-control {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -592,10 +650,28 @@
         <a href="#products" class="cta-button">Ver Nuestras Velas</a>
     </section>
 
+    <!-- Panel de Administración de Stock (OCULTO PARA CLIENTES) -->
+    <div class="admin-panel" id="adminPanel" style="display: none;">
+        <h2 class="admin-title">Panel de Control - Gestión de Stock</h2>
+        <div class="stock-control" id="stockControl">
+            <!-- Se llenará dinámicamente con JavaScript -->
+        </div>
+        <div style="text-align: center;">
+            <button class="cta-button" onclick="hideAdminPanel()">Ocultar Panel</button>
+        </div>
+    </div>
+
     <div class="container" id="products">
         <h2 class="section-title">Nuestras Velas Artesanales</h2>
         <div class="products-grid" id="productsGrid">
             <!-- Los productos se cargarán con JavaScript -->
+        </div>
+        
+        <!-- Botón secreto para administración (mantener pulsado 3 segundos) -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="cta-button" id="adminBtn" style="background: #6c757d; font-size: 0.8rem; padding: 0.5rem 1rem;">
+                Admin
+            </button>
         </div>
     </div>
 
@@ -661,9 +737,9 @@
             <h3>Velitas con Alma</h3>
             <p>Velas artesanales con esencias naturales para tu hogar</p>
             <div class="footer-contact">
-                <a href="mailto:blancapandita27@gmail.com">
+                <a href="mailto:velitasconalma@gmail.com">
                     <i class="fas fa-envelope"></i>
-                    <span>blancapandita27@gmail.com</span>
+                    <span>velitasconalma@gmail.com</span>
                 </a>
             </div>
             <p>&copy; 2024 Velitas con Alma. Todos los derechos reservados.</p>
@@ -671,6 +747,9 @@
     </footer>
 
     <script>
+        // Inicializar EmailJS (REEMPLAZA CON TUS DATOS REALES)
+        emailjs.init("YOUR_PUBLIC_KEY"); // Obtén esto de https://www.emailjs.com/
+
         // Base de datos de productos - PERSONALIZA ESTO CON TUS VELAS
         let products = JSON.parse(localStorage.getItem('velitasConAlmaStock')) || [
             {
@@ -739,6 +818,9 @@
         const orderForm = document.getElementById('orderForm');
         const cancelOrder = document.getElementById('cancelOrder');
         const confirmationModal = document.getElementById('confirmationModal');
+        const adminPanel = document.getElementById('adminPanel');
+        const stockControl = document.getElementById('stockControl');
+        const adminBtn = document.getElementById('adminBtn');
 
         // Cargar productos en la página
         function loadProducts() {
@@ -777,6 +859,86 @@
             document.querySelectorAll('.add-to-cart').forEach(button => {
                 button.addEventListener('click', addToCart);
             });
+        }
+
+        // Cargar panel de control de stock
+        function loadStockControl() {
+            stockControl.innerHTML = '';
+            products.forEach(product => {
+                const stockItem = document.createElement('div');
+                stockItem.className = 'stock-item';
+                stockItem.innerHTML = `
+                    <div><strong>${product.name}</strong></div>
+                    <div>Stock actual: <span id="stock-${product.id}">${product.stock}</span></div>
+                    <div class="stock-controls">
+                        <button class="stock-btn stock-remove" onclick="updateStock(${product.id}, -1)">-1</button>
+                        <button class="stock-btn stock-remove" onclick="updateStock(${product.id}, -5)">-5</button>
+                        <button class="stock-btn stock-add" onclick="updateStock(${product.id}, 1)">+1</button>
+                        <button class="stock-btn stock-add" onclick="updateStock(${product.id}, 5)">+5</button>
+                        <input type="number" id="custom-stock-${product.id}" placeholder="Cant" style="width: 60px; padding: 0.25rem;">
+                        <button class="stock-btn" onclick="updateStockCustom(${product.id})" style="background: #007bff; color: white;">Aplicar</button>
+                    </div>
+                `;
+                stockControl.appendChild(stockItem);
+            });
+        }
+
+        // Actualizar stock manualmente
+        function updateStock(productId, change) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.stock += change;
+                if (product.stock < 0) product.stock = 0;
+                
+                // Guardar en localStorage
+                localStorage.setItem('velitasConAlmaStock', JSON.stringify(products));
+                
+                // Actualizar displays
+                document.getElementById(`stock-${productId}`).textContent = product.stock;
+                updateProductDisplay(productId);
+            }
+        }
+
+        function updateStockCustom(productId) {
+            const input = document.getElementById(`custom-stock-${productId}`);
+            const newStock = parseInt(input.value);
+            if (!isNaN(newStock) && newStock >= 0) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    product.stock = newStock;
+                    localStorage.setItem('velitasConAlmaStock', JSON.stringify(products));
+                    document.getElementById(`stock-${productId}`).textContent = product.stock;
+                    updateProductDisplay(productId);
+                    input.value = '';
+                }
+            }
+        }
+
+        // Mostrar/ocultar panel admin
+        let adminPressTimer;
+        adminBtn.addEventListener('mousedown', function() {
+            adminPressTimer = setTimeout(showAdminPanel, 3000);
+        });
+
+        adminBtn.addEventListener('mouseup', function() {
+            clearTimeout(adminPressTimer);
+        });
+
+        adminBtn.addEventListener('touchstart', function() {
+            adminPressTimer = setTimeout(showAdminPanel, 3000);
+        });
+
+        adminBtn.addEventListener('touchend', function() {
+            clearTimeout(adminPressTimer);
+        });
+
+        function showAdminPanel() {
+            adminPanel.style.display = 'block';
+            loadStockControl();
+        }
+
+        function hideAdminPanel() {
+            adminPanel.style.display = 'none';
         }
 
         // Añadir producto al carrito
@@ -910,29 +1072,43 @@
                 // Guardar en localStorage
                 localStorage.setItem('velitasConAlmaStock', JSON.stringify(products));
                 
-                // Actualizar botón en la lista de productos
-                const productButton = document.querySelector(`.add-to-cart[data-id="${productId}"]`);
-                const stockDisplay = document.querySelector(`.add-to-cart[data-id="${productId}"]`).closest('.product-card').querySelector('.product-stock');
+                // Actualizar display
+                updateProductDisplay(productId);
+            }
+        }
+
+        // Actualizar display del producto
+        function updateProductDisplay(productId) {
+            const product = products.find(p => p.id === productId);
+            const productButton = document.querySelector(`.add-to-cart[data-id="${productId}"]`);
+            const stockDisplay = document.querySelector(`.add-to-cart[data-id="${productId}"]`).closest('.product-card').querySelector('.product-stock`);
+            
+            if (productButton && stockDisplay) {
+                let stockClass = 'in-stock';
+                let stockText = 'En stock';
                 
-                if (productButton && stockDisplay) {
-                    let stockClass = 'in-stock';
-                    let stockText = 'En stock';
-                    
-                    if (product.stock < 5 && product.stock > 0) {
-                        stockClass = 'low-stock';
-                        stockText = `Solo ${product.stock} disponibles`;
-                    } else if (product.stock === 0) {
-                        stockClass = 'out-of-stock';
-                        stockText = 'Agotado';
-                        productButton.disabled = true;
-                        productButton.textContent = 'Agotado';
-                    } else {
-                        productButton.disabled = false;
-                        productButton.textContent = 'Añadir a mi pedido';
-                    }
-                    
-                    stockDisplay.textContent = stockText;
-                    stockDisplay.className = `product-stock ${stockClass}`;
+                if (product.stock < 5 && product.stock > 0) {
+                    stockClass = 'low-stock';
+                    stockText = `Solo ${product.stock} disponibles`;
+                } else if (product.stock === 0) {
+                    stockClass = 'out-of-stock';
+                    stockText = 'Agotado';
+                    productButton.disabled = true;
+                    productButton.textContent = 'Agotado';
+                } else {
+                    productButton.disabled = false;
+                    productButton.textContent = 'Añadir a mi pedido';
+                }
+                
+                stockDisplay.textContent = stockText;
+                stockDisplay.className = `product-stock ${stockClass}`;
+            }
+
+            // Actualizar panel admin si está visible
+            if (adminPanel.style.display === 'block') {
+                const adminStockDisplay = document.getElementById(`stock-${productId}`);
+                if (adminStockDisplay) {
+                    adminStockDisplay.textContent = product.stock;
                 }
             }
         }
@@ -941,206 +1117,4 @@
         function generateOrderPDF(orderData) {
             const { customerName, customerEmail, customerAddress, orderNotes, orderDetails, total } = orderData;
             
-            // Crear contenido del PDF
-            const pdfContent = `
-                PEDIDO - VELITAS CON ALMA
-                ================================
-                
-                DATOS DEL CLIENTE:
-                Nombre: ${customerName}
-                Email: ${customerEmail}
-                Dirección: ${customerAddress}
-                ${orderNotes ? `Notas: ${orderNotes}` : ''}
-                
-                DETALLES DEL PEDIDO:
-                ${orderDetails}
-                
-                TOTAL: €${total}
-                
-                ================================
-                Fecha: ${new Date().toLocaleDateString()}
-                Hora: ${new Date().toLocaleTimeString()}
-                
-                ¡Gracias por tu pedido!
-                Velitas con Alma
-            `;
-            
-            // Crear blob para descargar
-            const blob = new Blob([pdfContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `pedido-velitas-con-alma-${Date.now()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            return pdfContent;
-        }
-
-        // Enviar pedido por email (simulado)
-        function sendOrderEmail(orderData, pdfContent) {
-            // En un caso real, aquí conectarías con un servicio de email
-            // Por ahora, simulamos el envío
-            
-            const emailBody = `
-Nuevo pedido de Velitas con Alma:
-
-${pdfContent}
-
----
-Este pedido fue generado automáticamente desde la tienda online.
-            `;
-            
-            // Simular envío (en realidad solo muestra en consola)
-            console.log('Email enviado a: blancapandita27@gmail.com');
-            console.log('Contenido:', emailBody);
-            
-            // En una implementación real, usarías:
-            // - Formspree
-            // - EmailJS
-            // - Un webhook
-            return true;
-        }
-
-        // Mostrar confirmación
-        function showOrderConfirmation(orderData, pdfContent) {
-            const confirmationContent = `
-                <div class="confirmation-content">
-                    <div class="confirmation-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h2>¡Pedido Confirmado!</h2>
-                    <p>Tu pedido ha sido procesado correctamente.</p>
-                    
-                    <div class="order-summary">
-                        <h3>Resumen de tu Pedido:</h3>
-                        <pre style="text-align: left; white-space: pre-wrap; font-family: inherit;">${pdfContent}</pre>
-                    </div>
-                    
-                    <p><strong>Te hemos enviado un email de confirmación.</strong></p>
-                    <p>Nos pondremos en contacto contigo pronto para coordinar el envío.</p>
-                    
-                    <button class="cta-button" onclick="printOrder()" style="margin: 10px;">
-                        <i class="fas fa-print"></i> Imprimir Pedido
-                    </button>
-                    <button class="cta-button" id="closeConfirmation">
-                        Cerrar
-                    </button>
-                </div>
-            `;
-            
-            document.getElementById('confirmationModal').innerHTML = confirmationContent;
-            document.getElementById('confirmationModal').style.display = 'flex';
-            
-            // Event listener para cerrar
-            document.getElementById('closeConfirmation').addEventListener('click', function() {
-                document.getElementById('confirmationModal').style.display = 'none';
-            });
-        }
-
-        // Función para imprimir
-        function printOrder() {
-            window.print();
-        }
-
-        // Event Listeners
-        cartIcon.addEventListener('click', () => {
-            cartModal.style.display = 'flex';
-        });
-
-        closeCart.addEventListener('click', () => {
-            cartModal.style.display = 'none';
-        });
-
-        finalizeOrderBtn.addEventListener('click', () => {
-            if (cart.length === 0) {
-                alert('Tu pedido está vacío');
-                return;
-            }
-            cartModal.style.display = 'none';
-            orderModal.style.display = 'flex';
-        });
-
-        cancelOrder.addEventListener('click', () => {
-            orderModal.style.display = 'none';
-            cartModal.style.display = 'flex';
-        });
-
-        orderForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Recopilar datos del formulario
-            const formData = new FormData(orderForm);
-            const orderData = {
-                customerName: formData.get('customerName'),
-                customerEmail: formData.get('customerEmail'),
-                customerAddress: formData.get('customerAddress'),
-                orderNotes: formData.get('orderNotes')
-            };
-            
-            // Generar detalles del pedido
-            let orderDetails = "";
-            let total = 0;
-            
-            cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                orderDetails += `${item.name} - ${item.quantity} x €${item.price} = €${itemTotal.toFixed(2)}\n`;
-            });
-            
-            orderDetails += `\nTOTAL: €${total.toFixed(2)}`;
-            orderData.orderDetails = orderDetails;
-            orderData.total = total.toFixed(2);
-            
-            // Mostrar indicador de carga
-            const submitButton = orderForm.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'Procesando...';
-            submitButton.disabled = true;
-            
-            // Generar PDF
-            const pdfContent = generateOrderPDF(orderData);
-            
-            // Enviar email (simulado)
-            const emailSent = sendOrderEmail(orderData, pdfContent);
-            
-            if (emailSent) {
-                orderModal.style.display = 'none';
-                showOrderConfirmation(orderData, pdfContent);
-                
-                // Limpiar carrito
-                cart = [];
-                updateCart();
-                
-                // Resetear formulario
-                orderForm.reset();
-            } else {
-                alert('Hubo un error al procesar tu pedido. Por favor, inténtalo de nuevo.');
-            }
-            
-            // Restaurar botón
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
-        });
-
-        // Cerrar modales al hacer clic fuera
-        window.addEventListener('click', (e) => {
-            if (e.target === cartModal) {
-                cartModal.style.display = 'none';
-            }
-            if (e.target === orderModal) {
-                orderModal.style.display = 'none';
-            }
-            if (e.target === confirmationModal) {
-                confirmationModal.style.display = 'none';
-            }
-        });
-
-        // Inicializar la página
-        loadProducts();
-        updateCart();
-    </script>
-</body>
-</html>
+            // Crear contenido
